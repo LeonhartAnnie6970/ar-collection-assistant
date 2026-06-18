@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Sales {
+  id        Int        @id @default(autoincrement())
+  code      String     @unique
+  name      String
+  customers Customer[]
+}
+
+model Customer {
+  id          Int        @id @default(autoincrement())
+  name        String
+  salesId     Int?
+  sales       Sales?     @relation(fields: [salesId], references: [id])
+  picCustomer String?    @db.VarChar(255)
+  createdAt   DateTime   @default(now())
+  activities  Activity[]
+}
+
+model Activity {
+  id             Int       @id @default(autoincrement())
+  tanggal        DateTime  @db.Date
+  customer_name  String    @db.VarChar(255)
+  collector      String    @db.VarChar(255)
+  os_amount      Float
+  od_amount      Float
+  invoice_count  Int
+  od_days        Int
+  activity       String    @db.Text
+  feedback       String    @db.Text
+  status         String    @db.VarChar(50)
+  customerId     Int?
+  customer       Customer? @relation(fields: [customerId], references: [id])
+  picCustomer    String?   @db.VarChar(255)
+  created_at     DateTime  @default(now())
+  updated_at     DateTime  @updatedAt
+
+  @@index([tanggal])
+  @@index([customerId])
+}
