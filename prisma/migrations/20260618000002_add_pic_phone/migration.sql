@@ -1,0 +1,2 @@
+ALTER TABLE `Customer` ADD COLUMN `picPhone` VARCHAR(50) NULL;
+ALTER TABLE `Activity` ADD COLUMN `picPhone` VARCHAR(50) NULL;

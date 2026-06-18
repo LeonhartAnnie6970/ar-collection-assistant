@@ -19,6 +19,14 @@ export function ActivityCard({ activity }: { activity: Activity }) {
               <span className="text-xs text-gray-500">({activity.collector})</span>
               <StatusBadge status={activity.status} />
             </div>
+            {(activity.picCustomer || (activity as typeof activity & { picPhone?: string | null }).picPhone) && (
+              <div className="mt-0.5 text-xs text-gray-500 flex items-center gap-2">
+                {activity.picCustomer && <span>PIC: {activity.picCustomer}</span>}
+                {(activity as typeof activity & { picPhone?: string | null }).picPhone && (
+                  <span>· {(activity as typeof activity & { picPhone?: string | null }).picPhone}</span>
+                )}
+              </div>
+            )}
 
             <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-0.5 text-sm text-gray-600">
               <span>OS: <strong>{formatAmount(activity.os_amount)} jt</strong></span>

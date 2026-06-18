@@ -7,6 +7,7 @@ export interface ImportRow {
   salesName: string
   customerName: string
   picCustomer?: string
+  picPhone?: string
 }
 
 export interface ImportResult {
@@ -86,7 +87,7 @@ export async function importCustomers(rows: ImportRow[]): Promise<ImportResult> 
   )
 
   // 3. Filter mana yang baru vs duplikat (di memory, tanpa DB)
-  const toCreate: { name: string; salesId: number | null; picCustomer: string | null }[] = []
+  const toCreate: { name: string; salesId: number | null; picCustomer: string | null; picPhone: string | null }[] = []
 
   for (const row of rows) {
     if (!row.customerName) continue
@@ -100,6 +101,7 @@ export async function importCustomers(rows: ImportRow[]): Promise<ImportResult> 
         name: row.customerName.trim(),
         salesId,
         picCustomer: row.picCustomer?.trim() || null,
+        picPhone: row.picPhone?.trim() || null,
       })
       existingSet.add(key)
     }

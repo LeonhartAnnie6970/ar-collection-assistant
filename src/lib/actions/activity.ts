@@ -23,6 +23,7 @@ export interface ActivityFormData {
   status: ActivityStatus
   customerId?: number | null
   picCustomer?: string
+  picPhone?: string
 }
 
 export async function createActivity(data: ActivityFormData) {
@@ -41,6 +42,7 @@ export async function createActivity(data: ActivityFormData) {
         status: data.status,
         customerId: data.customerId ?? null,
         picCustomer: data.picCustomer || null,
+        picPhone: data.picPhone || null,
       },
     })
     revalidatePath("/")

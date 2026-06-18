@@ -34,6 +34,7 @@ export function ActivityForm() {
   const [status, setStatus] = useState<ActivityStatus>("Waiting Confirmation")
   const [selectedCustomer, setSelectedCustomer] = useState<CustomerWithSales | null>(null)
   const [picCustomer, setPicCustomer] = useState("")
+  const [picPhone, setPicPhone] = useState("")
   const [manualCollector, setManualCollector] = useState("")
 
   const today = new Date().toISOString().split("T")[0]
@@ -42,9 +43,11 @@ export function ActivityForm() {
     setSelectedCustomer(customer)
     if (customer) {
       setPicCustomer(customer.picCustomer ?? "")
+      setPicPhone((customer as CustomerWithSales & { picPhone?: string | null }).picPhone ?? "")
       setManualCollector(customer.sales?.name ?? "")
     } else {
       setPicCustomer("")
+      setPicPhone("")
       setManualCollector("")
     }
   }
@@ -78,6 +81,7 @@ export function ActivityForm() {
       status,
       customerId: selectedCustomer?.id ?? null,
       picCustomer: picCustomer.trim() || undefined,
+      picPhone: picPhone.trim() || undefined,
     }
 
     startTransition(async () => {
@@ -137,15 +141,27 @@ export function ActivityForm() {
             )}
           </div>
 
-          {/* PIC Customer */}
-          <div className="space-y-1.5">
-            <Label htmlFor="pic-customer">PIC Customer</Label>
-            <Input
-              id="pic-customer"
-              value={picCustomer}
-              onChange={(e) => setPicCustomer(e.target.value)}
-              placeholder="Nama PIC customer"
-            />
+          {/* PIC Customer + No. Telepon */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="pic-customer">PIC Customer</Label>
+              <Input
+                id="pic-customer"
+                value={picCustomer}
+                onChange={(e) => setPicCustomer(e.target.value)}
+                placeholder="Nama PIC"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="pic-phone">No. Telepon PIC</Label>
+              <Input
+                id="pic-phone"
+                value={picPhone}
+                onChange={(e) => setPicPhone(e.target.value)}
+                placeholder="08xxxxxxxxxx"
+                type="tel"
+              />
+            </div>
           </div>
 
           {/* Customer History */}
