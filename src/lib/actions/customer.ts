@@ -57,10 +57,11 @@ export async function importCustomers(rows: ImportRow[]): Promise<ImportResult> 
 
   const salesMap = new Map<string, number>()
 
-  // Upsert all unique Sales
+  // 1. Upsert unique Sales (biasanya <20 records, cepat)
   const uniqueSales = [...new Map(rows.map((r) => [r.salesCode, r])).values()]
+    .filter((r) => r.salesCode && r.salesName)
+
   for (const row of uniqueSales) {
-    if (!row.salesCode || !row.salesName) continue
     try {
       const sales = await prisma.sales.upsert({
         where: { code: row.salesCode.trim() },
@@ -76,34 +77,44 @@ export async function importCustomers(rows: ImportRow[]): Promise<ImportResult> 
 
   result.totalCustomers = rows.length
 
-  // Import customers
+  // 2. Ambil semua customer yang sudah ada dalam 1 query
+  const existingCustomers = await prisma.customer.findMany({
+    select: { name: true, salesId: true },
+  })
+  const existingSet = new Set(
+    existingCustomers.map((c) => `${c.name}|${c.salesId ?? "null"}`)
+  )
+
+  // 3. Filter mana yang baru vs duplikat (di memory, tanpa DB)
+  const toCreate: { name: string; salesId: number | null; picCustomer: string | null }[] = []
+
   for (const row of rows) {
     if (!row.customerName) continue
-    const salesId = row.salesCode ? salesMap.get(row.salesCode.trim()) : undefined
+    const salesId = row.salesCode ? (salesMap.get(row.salesCode.trim()) ?? null) : null
+    const key = `${row.customerName.trim()}|${salesId ?? "null"}`
 
+    if (existingSet.has(key)) {
+      result.duplicates++
+    } else {
+      toCreate.push({
+        name: row.customerName.trim(),
+        salesId,
+        picCustomer: row.picCustomer?.trim() || null,
+      })
+      existingSet.add(key)
+    }
+  }
+
+  // 4. Insert semua sekaligus dalam 1 query
+  if (toCreate.length > 0) {
     try {
-      const existing = await prisma.customer.findFirst({
-        where: {
-          name: row.customerName.trim(),
-          salesId: salesId ?? null,
-        },
+      const res = await prisma.customer.createMany({
+        data: toCreate,
+        skipDuplicates: true,
       })
-
-      if (existing) {
-        result.duplicates++
-        continue
-      }
-
-      await prisma.customer.create({
-        data: {
-          name: row.customerName.trim(),
-          salesId: salesId ?? null,
-          picCustomer: row.picCustomer?.trim() || null,
-        },
-      })
-      result.imported++
+      result.imported = res.count
     } catch (e) {
-      result.errors.push(`Customer ${row.customerName}: ${String(e)}`)
+      result.errors.push(`Bulk insert error: ${String(e)}`)
     }
   }
 
