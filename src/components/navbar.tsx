@@ -6,9 +6,15 @@ export function Navbar() {
   return (
     <nav className="bg-blue-700 text-white shadow-md">
       <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-2 flex-wrap">
-        <span className="font-bold text-base md:text-lg tracking-tight whitespace-nowrap">
-          AR Collection
-        </span>
+        <Link href="/" className="flex items-center gap-2 hover:opacity-90 transition-opacity">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="28" height="28" className="shrink-0">
+            <rect width="32" height="32" rx="7" fill="white" fillOpacity="0.15"/>
+            <text x="16" y="23" fontFamily="Arial, Helvetica, sans-serif" fontSize="15" fontWeight="800" fill="white" textAnchor="middle" letterSpacing="-0.5">AR</text>
+          </svg>
+          <span className="font-bold text-base md:text-lg tracking-tight whitespace-nowrap">
+            AR Collection
+          </span>
+        </Link>
         <div className="flex items-center gap-1 md:gap-4 flex-wrap">
           <Link
             href="/"
