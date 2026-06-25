@@ -30,6 +30,12 @@ const COLOR_HEADER_FONT = "FFFFFFFF"
 const COLOR_GRAND_TOTAL_BG = "FFD9D9D9"
 const COLOR_AGING_OVERDUE = "FFFF0000" // red for aging > 30 days
 
+const BORDER_THIN: Partial<ExcelJS.Borders> = {
+  top: { style: "thin" },
+  left: { style: "thin" },
+  bottom: { style: "thin" },
+  right: { style: "thin" },
+}
 
 const NUM_COLS = OUTPUT_HEADERS.length
 
@@ -48,7 +54,6 @@ export async function generateOutstandingExcel(
   ws.getRow(1).height = 18
   const cellA1 = ws.getCell("A1")
   cellA1.value = COMPANY_NAME
-  // TODO: confirm exact font size for company name row
   cellA1.font = { name: "Calibri", size: 14, bold: true }
 
   // ── Row 2: Intentionally empty ───────────────────────────────────────────
@@ -62,7 +67,6 @@ export async function generateOutstandingExcel(
   // ── Row 4: Remark Date ───────────────────────────────────────────────────
   const cellA4 = ws.getCell("A4")
   cellA4.value = "Remark Date"
-  // Italic per user request ("kemiringan font")
   cellA4.font = { name: "Calibri", size: 11, italic: true }
 
   const cellC4 = ws.getCell("C4")
@@ -74,14 +78,14 @@ export async function generateOutstandingExcel(
 
   // ── Row 6: Column headers ────────────────────────────────────────────────
   const headerRow = ws.getRow(6)
-  headerRow.height = 36 // taller to accommodate wrap text
+  headerRow.height = 36
   OUTPUT_HEADERS.forEach((h, i) => {
     const cell = headerRow.getCell(i + 1)
     cell.value = h
-    // Calibri, not bold, white — confirmed by user
     cell.font = { name: "Calibri", size: 11, bold: false, color: { argb: COLOR_HEADER_FONT } }
     cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: COLOR_HEADER_BG } }
     cell.alignment = { vertical: "middle", horizontal: "center", wrapText: true }
+    cell.border = BORDER_THIN
   })
 
   // ── Data rows (starting at row 7) ────────────────────────────────────────
@@ -90,7 +94,8 @@ export async function generateOutstandingExcel(
 
     function bc(colNum: number) {
       const cell = r.getCell(colNum)
-        return cell
+      cell.border = BORDER_THIN
+      return cell
     }
 
     bc(1).value = row.customer
@@ -143,6 +148,7 @@ export async function generateOutstandingExcel(
   for (let c = 1; c <= NUM_COLS; c++) {
     const cell = gtRow.getCell(c)
     cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: COLOR_GRAND_TOTAL_BG } }
+    cell.border = BORDER_THIN
   }
 
   const cellGTLabel = gtRow.getCell(2)
