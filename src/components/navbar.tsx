@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { LayoutDashboard, FileText, Upload, Database, LogOut } from "lucide-react"
+import { LayoutDashboard, FileText, Upload, Database, LogOut, BarChart2 } from "lucide-react"
 import { logout } from "@/lib/actions/auth"
 
 export function Navbar() {
@@ -29,6 +29,13 @@ export function Navbar() {
           >
             <FileText size={15} />
             <span className="hidden sm:inline">Report</span>
+          </Link>
+          <Link
+            href="/report-center"
+            className="flex items-center gap-1 md:gap-1.5 text-xs md:text-sm hover:text-blue-200 transition-colors px-1 py-1"
+          >
+            <BarChart2 size={15} />
+            <span className="hidden sm:inline">Report Center</span>
           </Link>
           <Link
             href="/customers/import"
