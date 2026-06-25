@@ -30,12 +30,6 @@ const COLOR_HEADER_FONT = "FFFFFFFF"
 const COLOR_GRAND_TOTAL_BG = "FFD9D9D9"
 const COLOR_AGING_OVERDUE = "FFFF0000" // red for aging > 30 days
 
-const BORDER_THIN: Partial<ExcelJS.Borders> = {
-  top: { style: "thin" },
-  left: { style: "thin" },
-  bottom: { style: "thin" },
-  right: { style: "thin" },
-}
 
 const NUM_COLS = OUTPUT_HEADERS.length
 
@@ -48,6 +42,7 @@ export async function generateOutstandingExcel(
   const ws = wb.addWorksheet(SHEET_NAME)
 
   ws.columns = COL_WIDTHS.map((width) => ({ width }))
+  ws.views = [{ showGridLines: false }]
 
   // ── Row 1: Company name ──────────────────────────────────────────────────
   ws.getRow(1).height = 18
@@ -62,7 +57,7 @@ export async function generateOutstandingExcel(
   ws.getRow(3).height = 15.6
   const cellA3 = ws.getCell("A3")
   cellA3.value = "OUTSTANDING A/R"
-  cellA3.font = { name: "Calibri", size: 11, bold: true }
+  cellA3.font = { name: "Calibri", size: 12, bold: true }
 
   // ── Row 4: Remark Date ───────────────────────────────────────────────────
   const cellA4 = ws.getCell("A4")
@@ -87,7 +82,6 @@ export async function generateOutstandingExcel(
     cell.font = { name: "Calibri", size: 11, bold: false, color: { argb: COLOR_HEADER_FONT } }
     cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: COLOR_HEADER_BG } }
     cell.alignment = { vertical: "middle", horizontal: "center", wrapText: true }
-    cell.border = BORDER_THIN
   })
 
   // ── Data rows (starting at row 7) ────────────────────────────────────────
@@ -96,8 +90,7 @@ export async function generateOutstandingExcel(
 
     function bc(colNum: number) {
       const cell = r.getCell(colNum)
-      cell.border = BORDER_THIN
-      return cell
+        return cell
     }
 
     bc(1).value = row.customer
@@ -150,7 +143,6 @@ export async function generateOutstandingExcel(
   for (let c = 1; c <= NUM_COLS; c++) {
     const cell = gtRow.getCell(c)
     cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: COLOR_GRAND_TOTAL_BG } }
-    cell.border = BORDER_THIN
   }
 
   const cellGTLabel = gtRow.getCell(2)
